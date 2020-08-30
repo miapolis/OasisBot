@@ -13,18 +13,18 @@ module.exports = {
             .setDescription(
                 upperDescription + '\n\n' +
                 `**${prefix}help commands` +
-                'Get help with custom commands!' + '\n\n'
-                    `**${prefix}help profiles` +
-                'Get help with profiles!' + '\n\n'
-                    `**${prefix}help polls` +
-                'Get help with polls!' + '\n\n'
-                    `**${prefix}help roles` +
-                `Get help with this guild's roles!` + '\n\n'
-                    `**${prefix}help usage` +
-                'Get help with the usage of this bot!' + '\n\n'
-                    `**${prefix}help documentation` +
-                'Get help with the OasisBot documentation!' + '\n\n'
-                    `**${prefix}help info` +
+                'Get help with custom commands!' + '\n\n' +
+                `**${prefix}help profiles` +
+                'Get help with profiles!' + '\n\n' +
+                `**${prefix}help polls` +
+                'Get help with polls!' + '\n\n' +
+                `**${prefix}help roles` +
+                `Get help with this guild's roles!` + '\n\n' +
+                `**${prefix}help usage` +
+                'Get help with the usage of this bot!' + '\n\n' +
+                `**${prefix}help documentation` +
+                'Get help with the OasisBot documentation!' + '\n\n' +
+                `**${prefix}help info` +
                 'Get info about this bot!'
             );
 
