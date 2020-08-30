@@ -20,9 +20,10 @@ bot.on('ready', () => {
                 readCommands(path.join(dir, file));
             }
             else if (file !== baseFile) {
-                const option = path.join(__dirname, dir, file);
+                const option = require(path.join(__dirname, dir, file));
 
                 console.log(`Loaded commands from ${file}`);
+
                 commandBase(bot, option);
             }
         }
