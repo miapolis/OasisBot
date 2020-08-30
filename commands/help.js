@@ -12,19 +12,19 @@ module.exports = {
             .setColor('AQUA')
             .setDescription(
                 upperDescription + '\n\n' +
-                `**${prefix}help commands` +
+                `**${prefix}help commands` + '\n' +
                 'Get help with custom commands!' + '\n\n' +
-                `**${prefix}help profiles` +
+                `**${prefix}help profiles` + '\n' +
                 'Get help with profiles!' + '\n\n' +
-                `**${prefix}help polls` +
+                `**${prefix}help polls` + '\n' +
                 'Get help with polls!' + '\n\n' +
-                `**${prefix}help roles` +
+                `**${prefix}help roles` + '\n' +
                 `Get help with this guild's roles!` + '\n\n' +
-                `**${prefix}help usage` +
+                `**${prefix}help usage` + '\n' +
                 'Get help with the usage of this bot!' + '\n\n' +
-                `**${prefix}help documentation` +
+                `**${prefix}help documentation` + '\n' +
                 'Get help with the OasisBot documentation!' + '\n\n' +
-                `**${prefix}help info` +
+                `**${prefix}help info` + '\n' +
                 'Get info about this bot!'
             );
 
