@@ -12,6 +12,6 @@ module.exports = {
                 upperDescription + '\n\n' + 'HAHAH'
             );
 
-        message.channel.sendMessage(embed);
+        message.channel.send(embed);
     }
 }

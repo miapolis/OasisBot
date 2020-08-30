@@ -33,3 +33,7 @@ bot.on('ready', () => {
 });
 
 bot.login(process.env.token);
+
+// bot.on('message', message => {
+//     message.channel.send
+// });
