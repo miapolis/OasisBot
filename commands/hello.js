@@ -1,8 +1,8 @@
 module.exports = {
     commands: 'hello',
     expectedArgs: '',
-    permissionError = '',
-    minArgs = 0,
+    permissionError: '',
+    minArgs: 0,
     permissions: [],
     requiredRoles: [],
     callback: (message, arguments, text) => {
