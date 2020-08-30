@@ -75,7 +75,7 @@ module.exports = (bot, commandOptions) => {
             if (content.toLowerCase().startsWith(`${prefix}${alias.toLowerCase()}`)) {  //Run the command    
 
                 //But first check their roles
-                if (!member.hasPermission(permission)) {
+                if (permission !== null && !member.hasPermission(permission)) {
                     message.reply(permissionError)
                     return
                 }
