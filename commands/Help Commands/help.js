@@ -6,7 +6,7 @@ const upperDescription = "View our [documentation](https://sites.google.com/view
 module.exports = {
     commands: 'help',
     callback: (message, arguments, text) => {
-        let embed = new MessageEmbed()
+        let embed = new discord.MessageEmbed()
             .setTitle('Help')
             .setDescription(
                 upperDescription + '\n\n' + 'HAHAH'
