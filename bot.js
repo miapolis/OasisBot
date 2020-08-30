@@ -1,7 +1,6 @@
 const path = require('path');
 const fs = require('fs');
 
-
 const Discord = require("discord.js");
 const bot = new Discord.Client();
 
@@ -30,19 +29,6 @@ bot.on('ready', () => {
     }
 
     readCommands('commands');
-});
-
-bot.on('message', msg => {
-    if (msg.content.startsWith(prefix)) {
-        if (msg.content.includes('hello')) {
-            var embed = new Discord.MessageEmbed()
-                .setTitle(`Hello ${msg.author.username}!`)
-                .setColor('GOLD')
-                .setDescription('Hello user! What a fine day!');
-
-            msg.channel.send(embed);
-        }
-    }
 });
 
 bot.login(process.env.token);
