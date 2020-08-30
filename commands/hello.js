@@ -1,5 +1,5 @@
 module.exports = {
-    commands: ['hello'],
+    commands: 'hello',
     expectedArgs: '',
     permissionError = '',
     minArgs = 0,
