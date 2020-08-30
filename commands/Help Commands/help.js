@@ -1,5 +1,8 @@
+const path = require('path')
+const root = path.dirname(require.main.dirname)
+
 const discord = require("discord.js")
-const { prefix } = require('config.json');
+const { prefix } = require(root + 'config.json')
 
 const upperDescription = "View our [documentation](https://sites.google.com/view/oasisbot/documentation)\n" +
     "If you would like to send feedback or report a bug, fill out [this form](https://forms.gle/nwWKRLNJtqHW6Vfq9)\nIf you would like to further support this bot, specify **&donate**";
