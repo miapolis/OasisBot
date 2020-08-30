@@ -12,7 +12,12 @@ client.on('ready', () => {
 client.on('message', msg => {
     if (msg.content.startsWith(prefix)) {
         if (msg.content.includes('hello')) {
-            msg.channel.send('hello');
+            var embed = new Discord.MessageEmbed()
+                .setTitle(`Hello ${msg.author.username}!`)
+                .setColor('GOLD')
+                .setDescription('Hello user! What a fine day!');
+
+            msg.channel.send(embed);
         }
     }
 });
