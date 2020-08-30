@@ -11,7 +11,7 @@ bot.on('ready', () => {
     const commandBase = require(`./commands/${baseFile}`);
 
     const readCommands = dir => {
-        const files = path.join(__dirname, dir);
+        const files = fs.readdirSync(path.join(__dirname, dir));
 
         for (const file of files) {
             const stat = fs.lstatSync(path.join(__dirname, dir, file));
