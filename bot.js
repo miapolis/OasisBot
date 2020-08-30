@@ -3,9 +3,7 @@ const client = new Discord.Client();
 
 const prefix = '&';
 
-const token = "NzQ5NjQ5NzcxNjM5MzQxMjA3.X0vDwQ.iVOxppzs1apIPPC9AVkqQxprUgA"; // Temporary
-
-client.login(token);
+client.login(process.env.token);
 
 client.on('ready', () => {
     console.log(`Logged in as this bot: ${client.user.tag}`);
