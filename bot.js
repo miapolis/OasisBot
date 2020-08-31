@@ -1,39 +1,31 @@
-const path = require('path');
-const fs = require('fs');
+const { localToken } = require('./config.json');
 
 const Discord = require("discord.js");
 const bot = new Discord.Client();
 
-bot.on('ready', () => {
+const mongo = require('./mongo');
+
+const loadCommands = require('./commands/load-commands')
+
+const IS_HOSTING = true;
+
+bot.on('ready', async () => {
     console.log(`Logged in as this bot: ${bot.user.tag}`);
 
-    const baseFile = 'command-base.js';
-    const commandBase = require(`./commands/${baseFile}`);
+    loadCommands(bot)
 
-    const readCommands = dir => {
-        const files = fs.readdirSync(path.join(__dirname, dir));
-
-        for (const file of files) {
-            const stat = fs.lstatSync(path.join(__dirname, dir, file));
-
-            if (stat.isDirectory()) {
-                readCommands(path.join(dir, file));
-            }
-            else if (file !== baseFile) {
-                const option = require(path.join(__dirname, dir, file));
-
-                console.log(`Loaded commands from ${file}`);
-
-                commandBase(bot, option);
-            }
+    await mongo().then(mongoose => {
+        try {
+            console.log('Connected to MongoDB!');
+        } finally {
+            mongoose.connection.close();
         }
-    }
-
-    readCommands('commands');
+    });
 });
 
-bot.login(process.env.token);
-
-// bot.on('message', message => {
-//     message.channel.send
-// });
+if (IS_HOSTING) {
+    bot.login(process.env.token);
+}
+else {
+    bot.login(localToken);
+}

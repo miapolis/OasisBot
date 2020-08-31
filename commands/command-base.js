@@ -45,6 +45,8 @@ const validatePermissions = (permissions) => {
 module.exports = (bot, commandOptions) => {
     let {
         commands,
+        description = '',
+        category = 'commands',
         expectedArgs = '',
         permissionError = 'You do not have the required permissions to use this command',
         minArgs = 0,
@@ -101,7 +103,7 @@ module.exports = (bot, commandOptions) => {
                 }
 
                 //Everything worked! Let's run the command
-                callback(message, arguments, arguments.join(' '))
+                callback(message, arguments, arguments.join(' '), bot)
 
                 return
             }
