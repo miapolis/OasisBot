@@ -8,10 +8,10 @@ const reqString = {
 const profileSchema = mongoose.Schema({
     guildId: reqString,
     userId: reqString,
-    coins: {
+    xpLevel: {
         type: Number,
         required: true
     }
 })
 
-module.exports = mongoose.model('profileCoins', profileSchema)
+module.exports = mongoose.model('profile', profileSchema)

@@ -73,6 +73,8 @@ module.exports = (bot, commandOptions) => {
     bot.on('message', message => {
         const { member, content, guild } = message
 
+        if (member.user.bot) { return }
+
         for (const alias of commands) {
             if (content.toLowerCase().startsWith(`${prefix}${alias.toLowerCase()}`)) {  //Run the command    
 
