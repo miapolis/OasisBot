@@ -1,8 +1,8 @@
 const discord = require("discord.js")
-const { prefix } = require('../../config.json')
 
 const loadCommands = require('../load-commands')
 const config = require('../../config.json')
+const commandBase = require('../command-base')
 
 const validCategories = [
     'commands',
@@ -14,9 +14,6 @@ const validCategories = [
     'info'
 ]
 
-const upperDescription = "View our [documentation](https://sites.google.com/view/oasisbot/documentation)\n" +
-    "If you would like to send feedback or report a bug, fill out [this form](https://forms.gle/nwWKRLNJtqHW6Vfq9)\nIf you would like to further support this bot, specify **&donate**";
-
 module.exports = {
     commands: 'help',
     category: 'null',
@@ -24,10 +21,13 @@ module.exports = {
     maxArgs: 1,
     callback: (message, arguments, text) => {
 
+        const prefix = commandBase.getGuildPrefix(message.guild.id)
+
+        const upperDescription = "View our [documentation](https://sites.google.com/view/oasisbot/documentation)\n" +
+            `If you would like to send feedback or report a bug, fill out [this form](https://forms.gle/nwWKRLNJtqHW6Vfq9)\nIf you would like to further support this bot, specify **${prefix}donate**`
+
         const subCategory = arguments[0]
         const subCategoryTitle = subCategory ? subCategory.charAt(0).toUpperCase() + subCategory.slice(1) : ''
-
-        console.log('SUBCATERGORY IS: ', subCategory)
 
         if (!subCategory) {
             let mainHelpEmbed = new discord.MessageEmbed()
@@ -55,14 +55,48 @@ module.exports = {
             return
         }
 
-        //Category help
-
-        if (!validCategories.includes(subCategory.toLowerCase())) {
-            message.channel.send(`Do you need help? Use **${config.prefix}help**`)
-            return
-        }
+        //Category help OR help for a specific command
 
         const commands = loadCommands()
+
+        if (!validCategories.includes(subCategory.toLowerCase())) {
+            let commandNamesArray = [] //Same code from custom comamnds
+
+            for (const commandOption of commands) {
+                if (typeof (commandOption.commands) === 'string') {
+                    commandNamesArray.push(commandOption.commands)
+                }
+                else {
+                    for (const alias of commandOption.commands) {
+                        commandNamesArray.push(alias)
+                    }
+                }
+            }
+
+            for (const commandName of commandNamesArray) {
+                if (commandName === subCategory.toLowerCase()) {
+                    let fullCommand = commands.find(x => typeof (x.commands) === 'string' ? x.commands === commandName : x.commands.includes(commandName))
+
+                    const mainCommand = typeof fullCommand.commands === 'string' ? fullCommand.commands : fullCommand.commands[0]
+                    const args = fullCommand.expectedArgs ? ` ${fullCommand.expectedArgs}` : ''
+                    const permissionString = fullCommand.permissions ? (typeof (fullCommand.permissions) === 'string' ? fullCommand.permissions : fullCommand.permissions.join(', ')) : 'None'
+                    const { description } = fullCommand
+
+                    let commandsString = ("`" + `${prefix}${mainCommand}` + args + "`" + ` *(permissions: ${permissionString})*` + `\n**Description:** ${description}` + "\n\n")
+
+                    message.channel.send(new discord.MessageEmbed({
+                        title: 'Command',
+                        description: commandsString,
+                        color: 'AQUA'
+                    }))
+
+                    return
+                }
+            }
+
+            message.channel.send(`Do you need help? Use **${prefix}help**`)
+            return
+        }
 
         let commandsString = ''
 
@@ -94,7 +128,7 @@ module.exports = {
                 const permissionString = permissions ? permissions.join(', ') : 'None'
                 const { description } = command
 
-                commandsString += ("`" + `${config.prefix}${mainCommand}` + args + "`" + ` *(permissions: ${permissionString})*` + `\n**Description:** ${description}` + "\n\n")
+                commandsString += ("`" + `${prefix}${mainCommand}` + args + "`" + ` *(permissions: ${permissionString})*` + `\n**Description:** ${description}` + "\n\n")
             }
         }
 

@@ -1,22 +1,22 @@
 const Discord = require('discord.js')
 const mongo = require('./mongo')
 
-const { prefix } = require('./config.json')
-
-const customCommandSchema = require('./schema/custom-command-schema')
+const customCommandSchema = require('./schema/custom-command-schema.js')
 const { commands } = require('./commands/Economy Commands/addbal')
-
-let customCommandObject = {
-    defaultResponse: 'response',
-    amountOfResponses: 1,
-    responses: [],
-    customCommandType: 0,
-    error: false
-}
+const loadCommands = require('./commands/load-commands')
+const commandBase = require('./commands/command-base')
 
 const commandsCache = {} //"name": obj
 
+let ignoredUsers = [] //Just an array of IDs
+
+module.exports.getIgnoredUsers = () => {
+    return ignoredUsers
+}
+
 module.exports.getCustomCommand = async (name) => {
+    console.log('RUNNING...')
+
     name = name.toLowerCase()
 
     const cachedValue = commandsCache[name]
@@ -34,22 +34,13 @@ module.exports.getCustomCommand = async (name) => {
             console.log('RESULT: ', result)
 
             if (result) {
-                let newCustomCommand = Object.create(customCommandObject)
+                commandsCache[name] = result
 
-                newCustomCommand.defaultResponse = result.defaultResponse
-                newCustomCommand.amountOfResponses = result.amountOfResponses
-                newCustomCommand.responses = result.responses
-                newCustomCommand.customCommandType = result.customCommandType
-                newCustomCommand.error = result.error
+                console.log('RSULT FROM GET:', result)
 
-                commandsCache[name] = newCustomCommand
-
-                return newCustomCommand
+                return result
             } else {
-                let newCustomCommand = Object.create(customCommandObject)
-
-                newCustomCommand.error = true
-                return newCustomCommand
+                return false
             }
         } finally {
             mongoose.connection.close()
@@ -57,94 +48,177 @@ module.exports.getCustomCommand = async (name) => {
     })
 }
 
-module.exports.addCustomCommand = async (bot, name, defaultResponse, amountOfResponses, responses, customCommandType) => {
+module.exports.addCustomCommand = async (name, defaultResponse, amountOfResponses, responses, customCommandType) => { //Add message with embed object
     name = name.toLowerCase()
+
+    const embed = defaultResponse.embed
 
     return await mongo().then(async (mongoose) => {
         try {
-            let newCustomCommand = Object.create(customCommandObject);
-
-            newCustomCommand.defaultResponse = defaultResponse
-            newCustomCommand.amountOfResponses = amountOfResponses
-            newCustomCommand.responses = responses
-            newCustomCommand.customCommandType = customCommandType
-            newCustomCommand.error = false
-
-            await new customCommandSchema({
+            const addedDoc = await new customCommandSchema({
                 commandName: name,
-                defaultResponse,
+                defaultResponse: {
+                    message: defaultResponse.message,
+                    embed: embed ? {
+                        title: embed.title,
+                        description: embed.description,
+                        hexColor: embed.color,
+                        thumbnailURL: embed.thumbnail.url,
+                        fields: embed.fields,
+                        footer: {
+                            text: embed.footer ? embed.footer.text : '',
+                            iconURL: embed.footer ? embed.footer.iconURL : ''
+                        }
+                    } : undefined
+                },
                 amountOfResponses,
                 responses,
                 customCommandType
             }).save()
 
-            this.addCommandListener(bot, name)
-
-            commandsCache[name] = newCustomCommand
-
-            return name
+            commandsCache[name] = addedDoc
         } finally {
             mongoose.connection.close()
         }
     })
 }
 
-module.exports.addCommandListener = async (bot, name) => {
-    console.log(`Listening for custom command ${name}`)
+module.exports.deleteCustomCommand = async (name) => {
+    name = name.toLowerCase()
 
-    bot.on('message', async message => {
-        if (message.content.toLowerCase().startsWith(`${prefix}${name.toLowerCase()}`)) {
-            let commandObject = await this.getCustomCommand(name)
+    return await mongo().then(async (mongoose) => {
+        try {
+            console.log('Running deleteOne()')
 
-            if (commandObject.error) { //Command was not found
-                message.channel.send(new Discord.MessageEmbed({
-                    title: 'That Command Does Not Exist',
-                    description: "Need help finding a command? Type in " + `**${prefix}help commands** ` + `or use **${prefix}commands** ` + "to see a list of available commands",
-                    color: 'RED'
-                }))
+            await customCommandSchema.deleteOne({
+                commandName: name
+            }).then(() => {
+                console.log('Object deleted.')
 
-                return
-            }
-            else {
-                if (commandObject.customCommandType === 1) { //Only one response in the command
-                    message.channel.send(`${commandObject.defaultResponse}`)
-                    return
+                if (commandsCache[name]) {
+                    delete commandsCache[name]
                 }
-                else if (commandObject.customCommandType === 2) { //Random custom command
-                    let randomIdex = getRandomIntBetween(0, commandObject.amountOfResponses - 1)
-
-                    message.channel.send(`${commandObject.responses[randomIdex]}`)
-                    return
-                }
-            }
+            }).catch(error => {
+                console.log(error)
+            })
+        } finally {
+            mongoose.connection.close()
         }
     })
 }
 
-module.exports.startUp = async (bot) => {
+module.exports.startup = async (bot) => {
     return await mongo().then(async (mongoose) => {
         try {
             const allCommands = await customCommandSchema.find()
 
             for (const command of allCommands) {
-                this.addCommandListener(bot, command.commandName)
+                commandsCache[command.commandName] = command
 
-                let newCustomCommand = Object.create(customCommandObject);
-
-                newCustomCommand.defaultResponse = command.defaultResponse
-                newCustomCommand.amountOfResponses = command.amountOfResponses
-                newCustomCommand.responses = command.responses
-                newCustomCommand.customCommandType = command.customCommandType
-                newCustomCommand.error = false
-
-                commandsCache[command.commandName] = newCustomCommand
-
-                console.log(`Custom command loaded ${prefix}${command.commandName}`)
+                console.log(`Custom command loaded &${command.commandName}`) //Use default prefix since this shows up in the global config
             }
+
+            this.startListener(bot)
         } finally {
             mongoose.connection.close()
         }
     })
+}
+
+module.exports.startListener = async (bot) => {
+    const defaultCommands = loadCommands()
+
+    let commandNamesArray = []
+
+    for (const commandOption of defaultCommands) {
+        if (typeof (commandOption.commands) === 'string') {
+            commandNamesArray.push(commandOption.commands)
+        }
+        else {
+            for (const alias of commandOption.commands) {
+                commandNamesArray.push(alias)
+            }
+        }
+    }
+
+    console.log('ALL COMMANDS', commandNamesArray)
+
+    bot.on('message', async message => {
+        if (ignoredUsers.includes(message.member.user.id)) { return } //Very simple
+        if (message.member.user.bot) { return }
+
+        const prefix = getPrefix(message.guild.id)
+
+        const newContent = message.content
+        const arguments = newContent.split(/[ ]+/)
+
+        if (arguments.length > 1) { return }
+
+        if (newContent.toLowerCase().startsWith(`${prefix}`)) {
+            let cmdString = newContent.substring(1)
+
+            if (commandNamesArray.includes(cmdString)) { return }
+
+            let commandObject = await this.getCustomCommand(cmdString)
+
+            if (!commandObject) { //Command was not found
+                message.channel.send(new Discord.MessageEmbed({
+                    title: 'That Command Does Not Exist',
+                    description: "Need help? Type in " + `**${prefix}help**\n` + `Looking for a custom command? Use **${prefix}help commands** or **${prefix}commands**`,
+                    color: 'RED'
+                }))
+
+                return
+            }
+
+            if (commandObject.customCommandType === 1) { //Only one response in the command
+                message.channel.send(`${commandObject.defaultResponse.message}`)
+                return
+            }
+            else if (commandObject.customCommandType === 2) { //Random custom command
+                let randomIdex = getRandomIntBetween(0, commandObject.amountOfResponses - 1)
+
+                message.channel.send(`${commandObject.responses[randomIdex].message}`)
+                return
+            }
+            else if (commandObject.customCommandType === 3) { //Single embed command 
+                const commandText = commandObject.defaultResponse.message
+
+                const d = commandObject.defaultResponse.embed
+                const color = d.hexColor ? '#' + ((Number)(d.hexColor)).toString(16) : undefined
+
+                let embed = new Discord.MessageEmbed({
+                    title: d.title,
+                    description: d.description ? d.description : undefined,
+                    color: color ? color : undefined,
+                    fields: d.fields ? d.fields : undefined
+                })
+
+                if (d.thumbnailURL) {
+                    embed.setThumbnail(d.thumbnailURL)
+                }
+
+                if (d.footer.text) {
+                    embed.setFooter(d.footer.text, d.footer.iconURL)
+                }
+
+                message.channel.send(commandText, embed)
+                return
+            }
+        }
+    })
+}
+
+module.exports.pushNewUserToIgnore = (id, reason) => {
+    console.log(`USER WITH ID ${id} IGNORED:`)
+    ignoredUsers.push(id)
+}
+
+module.exports.removeUserToIgnore = (id, reason) => {
+    const index = ignoredUsers.indexOf(id)
+    if (index > -1) { ignoredUsers.splice(index, 1) }
+    console.log(`USER WITH ID ${id} REMOVED FROM IGNORED:`, reason)
+
 }
 
 module.exports.getAllInCache = () => {
@@ -155,7 +229,11 @@ module.exports.getAllInCache = () => {
     return commandArr
 }
 
-function getRandomIntBetween(min, max) {
+getPrefix = (guildId) => {
+    return commandBase.getGuildPrefix(guildId)
+}
+
+getRandomIntBetween = (min, max) => {
     min = Math.ceil(min)
     max = Math.floor(max)
     return Math.floor(Math.random() * (max - min + 1)) + min

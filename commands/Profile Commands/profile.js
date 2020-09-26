@@ -1,5 +1,6 @@
 const Discord = require('discord.js')
 const leveling = require('../../Leveling/leveling')
+const { prefix } = require('../../config.json')
 
 module.exports = {
     commands: 'profile',
@@ -15,6 +16,11 @@ module.exports = {
 
         if (mention) {
             member = mention
+        } else { //The member didn't mention anyone so let's check if they have any unnecessary argument(s)
+            if (arguments.length > 0) {
+                message.reply(`Sorry, something went wrong. If you need help with this command, use **${prefix}help profile**`)
+                return
+            }
         }
 
         //Check if the member is a bot
