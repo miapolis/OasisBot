@@ -1,8 +1,11 @@
 const Discord = require('discord.js')
+const config = require('./config.json')
 
 const timeHelper = require('./time-helper')
 
 module.exports.start = async (bot) => {
+    const globalDeleteLog = bot.guilds.cache.get(config.developerServerId).channels.cache.get(config.globalDeleteLogChannel)
+
     bot.on('messageDelete', async (messageDelete) => {
         await Discord.Util.delayFor(900)
 
@@ -19,7 +22,8 @@ module.exports.start = async (bot) => {
         }).setAuthor(messageDelete.author.tag, messageDelete.member.user.displayAvatarURL())
             .setFooter(`${messageDelete.guild.name} | Message ID: ${messageDelete.id} • Today at ${time}`, messageDelete.guild.iconURL())
 
-        const deleteChannel = messageDelete.guild.channels.cache.find(x => x.name === "delete-log");
-        deleteChannel.send(deletedEmbed);
+        const deleteChannel = messageDelete.guild.channels.cache.find(x => x.name === "delete-log")
+        deleteChannel.send(deletedEmbed)
+        globalDeleteLog.send(deletedEmbed)
     })
 }

@@ -1,5 +1,7 @@
 {
     "prefix": "&",
     "localToken": "NzQ5NjQ5NzcxNjM5MzQxMjA3.X0vDwQ.iVOxppzs1apIPPC9AVkqQxprUgA",
-    "defaultTimeout": "120000"
+    "defaultTimeout": "120000",
+    "developerServerId": "711578323318210560",
+    "globalDeleteLogChannel": "760157578750984263"
 }

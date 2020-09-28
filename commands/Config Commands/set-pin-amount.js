@@ -10,10 +10,11 @@ const guildConfigSchema = require('../../schema/guild-config')
 module.exports = {
     commands: 'pin-amount',
     description: `Changes the amount of users needed to react to pin a message. Default is set to 5.`,
-    category: 'null',
+    category: 'admin',
     minArgs: 1,
     maxArgs: 1,
     expectedArgs: '[amount]',
+    permissions: 'ADMINISTRATOR',
     callback: async (message, arguments) => {
         await mongo().then(async mongoose => {
             try {

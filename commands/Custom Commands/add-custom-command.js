@@ -87,7 +87,7 @@ module.exports = {
                     await createBasicCommand(message, out, message.member.user)
                 }
                 else if (reaction.emoji.name === '🇧') {
-                    await createRandomCommand()
+                    await createRandomCommand(message, out, message.member.user)
                 }
                 else if (reaction.emoji.name === '🇨') {
                     await createEmbedCommand(message, out, message.member.user)
@@ -168,8 +168,8 @@ createBasicCommand = async (message, channel, user) => {
     await startCommandNaming(message, channel, user, continueWithBasicCommand)
 }
 
-createRandomCommand = async () => {
-
+createRandomCommand = async (message, channel, user) => {
+    await startCommandNaming(message, channel, user, continueWithRandomCommand)
 }
 
 createEmbedCommand = async (message, channel, user) => {
@@ -230,6 +230,87 @@ continueWithBasicCommand = async (commandName, message, channel, user) => {
         }
     })
 }
+
+continueWithRandomCommand = async (commandName, message, channel, user) => {
+    const prefix = commandBase.getGuildPrefix(channel.guild.id)
+
+    await channel.send(new Discord.MessageEmbed({
+        title: 'Choose Amount of Responses',
+        description: 'Configure how many different responses you want your command to have. Must be an integer.',
+        color: embedColor.CORNFLOWER_BLUE
+    })
+        .addField('Min', '2')
+        .addField('Max', '50')
+        .addField('Cancel', `${prefix}cancel`)
+        .setFooter('Oasis Database · Random command', botScript.getClient().user.displayAvatarURL())
+    )
+
+    const filter = x => x.author.id === user.id
+    const messageCollector = await channel.createMessageCollector(filter, { time: defaultTimeout })
+
+    messageCollector.on('collect', async collected => {
+        if (collected.content === `${prefix}cancel`) {
+            reply.replyExclaim(message, 'Canceled!')
+            messageCollector.stop()
+            return
+        }
+
+        const result = Number(collected.content)
+
+        if (!result) {
+            reply.replyExclaim(message, 'Please make sure your response is an integer! Try again.')
+            return
+        }
+
+        if (result > 50 || result < 2) {
+            reply.replyExclaim(message, 'Keep your responses between 2 and 50! If you are going for a command with just one response, consider a **basic** command.')
+            return
+        }
+
+        //Here we have a valid response
+        messageCollector.stop()
+        initiateResponseLoop(commandName, message, channel, user, result)
+    })
+}
+
+//#region Post Command Random Steps
+
+initiateResponseLoop = async (commandName, message, channel, user, amountOfResponses) => {
+    let responses = []
+
+    for (let i = 0; i < amountOfResponses; i++) {
+        const responseNumber = i + 1
+
+        await channel.send(new Discord.MessageEmbed({
+            title: `Response Number ${responseNumber}`,
+            description: `Configure response number ${responseNumber}. What will it say?`,
+            color: embedColor.LIGHT_GREEN
+        })
+            .addField('Total Responses', amountOfResponses)
+            .addField('Responses Left', amountOfResponses - responseNumber)
+            .setFooter('Oasis Database · Random command', botScript.getClient().user.displayAvatarURL())
+        )
+
+        const filter = x => x.author.id === user.id
+
+        await channel.awaitMessages(filter, { max: 1, time: defaultTimeout }).then(async collected => {
+            const content = collected.first().content
+            console.log('CONTENT', content)
+
+            const msgObj = {
+                message: content,
+                embed: null
+            }
+
+            responses.push(msgObj)
+        })
+    }
+
+    console.log(responses)
+    await submitCustomCommand(commandName, '', amountOfResponses, responses, 2, channel, message.author) //(commandName, defaultResponse, amountOfResponses, responses, customCommandType, channel, humanUser)
+}
+
+//#endregion
 
 //#region Post Command EMBED steps
 

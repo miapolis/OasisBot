@@ -46,9 +46,9 @@ const customCommandSchema = mongoose.Schema({
         type: Number,
         required: true
     },
-    responses: [{
+    responses: [
         discordMessage
-    }],
+    ],
     customCommandType: { //1: Default, 2: Random, 3: Embed, 4: Random Embed
         type: Number,
         required: true

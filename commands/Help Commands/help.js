@@ -11,7 +11,8 @@ const validCategories = [
     'roles',
     'usage',
     'documentation',
-    'info'
+    'info',
+    'admin'
 ]
 
 module.exports = {
@@ -30,25 +31,45 @@ module.exports = {
         const subCategoryTitle = subCategory ? subCategory.charAt(0).toUpperCase() + subCategory.slice(1) : ''
 
         if (!subCategory) {
+            let desc = upperDescription + '\n\n' +
+                `**${prefix}help commands**` + '\n' +
+                'Get help with custom commands!' + '\n\n' +
+                `**${prefix}help profiles**` + '\n' +
+                'Get help with profiles!' + '\n\n' +
+                `**${prefix}help polls**` + '\n' +
+                'Get help with polls!' + '\n\n' +
+                `**${prefix}help roles**` + '\n' +
+                `Get help with this guild's roles!` + '\n\n' +
+                `**${prefix}help usage**` + '\n' +
+                'Get help with the usage of this bot!' + '\n\n' +
+                `**${prefix}help documentation**` + '\n' +
+                'Get help with the OasisBot documentation!' + '\n\n' +
+                `**${prefix}help info**` + '\n' +
+                'Get info about this bot!'
+
+            let adminDesc = upperDescription + '\n\n' +
+                `**${prefix}help commands**` + '\n' +
+                'Get help with custom commands!' + '\n\n' +
+                `**${prefix}help profiles**` + '\n' +
+                'Get help with profiles!' + '\n\n' +
+                `**${prefix}help polls**` + '\n' +
+                'Get help with polls!' + '\n\n' +
+                `**${prefix}help roles**` + '\n' +
+                `Get help with this guild's roles!` + '\n\n' +
+                `**${prefix}help admin**` + '\n' +
+                'Get help with admin commands for this bot!' + '\n\n' +
+                `**${prefix}help usage**` + '\n' +
+                'Get help with the usage of this bot!' + '\n\n' +
+                `**${prefix}help documentation**` + '\n' +
+                'Get help with the OasisBot documentation!' + '\n\n' +
+                `**${prefix}help info**` + '\n' +
+                'Get info about this bot!'
+
             let mainHelpEmbed = new discord.MessageEmbed()
                 .setTitle('Help')
                 .setColor('AQUA')
                 .setDescription(
-                    upperDescription + '\n\n' +
-                    `**${prefix}help commands**` + '\n' +
-                    'Get help with custom commands!' + '\n\n' +
-                    `**${prefix}help profiles**` + '\n' +
-                    'Get help with profiles!' + '\n\n' +
-                    `**${prefix}help polls**` + '\n' +
-                    'Get help with polls!' + '\n\n' +
-                    `**${prefix}help roles**` + '\n' +
-                    `Get help with this guild's roles!` + '\n\n' +
-                    `**${prefix}help usage**` + '\n' +
-                    'Get help with the usage of this bot!' + '\n\n' +
-                    `**${prefix}help documentation**` + '\n' +
-                    'Get help with the OasisBot documentation!' + '\n\n' +
-                    `**${prefix}help info**` + '\n' +
-                    'Get info about this bot!'
+                    message.member.permissions.has('ADMINISTRATOR') ? adminDesc : desc
                 );
 
             message.channel.send(mainHelpEmbed);
@@ -132,7 +153,9 @@ module.exports = {
             }
         }
 
-        let catergoryEmbed = new discord.MessageEmbed().setTitle(subCategoryTitle).setDescription(commandsString).setColor('AUQA')
+        let permissionDesc = commandsString === '' ? `Whoops! It seems like you can't access **${subCategory.toLowerCase()}**.` : commandsString
+
+        let catergoryEmbed = new discord.MessageEmbed().setTitle(subCategoryTitle).setDescription(permissionDesc).setColor('AQUA')
 
         message.channel.send(catergoryEmbed)
     }

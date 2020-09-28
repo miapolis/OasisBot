@@ -9,7 +9,7 @@ const embedColor = require('../../embed-color.json')
 module.exports = {
     commands: 'config',
     description: 'Shows a menu for how this bot is configured for this guild.',
-    category: 'null',
+    category: 'admin',
     permissions: 'ADMINISTRATOR',
     minArgs: 0,
     maxArgs: 0,

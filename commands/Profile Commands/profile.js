@@ -12,7 +12,7 @@ module.exports = {
     callback: async (message, arguments, text) => {
         const mention = message.mentions.members.first()
 
-        let member = message.author
+        let member = message.member
 
         if (mention) {
             member = mention
@@ -40,7 +40,7 @@ module.exports = {
         }
 
         const guildId = message.guild.id
-        const userId = member.id
+        const userId = member.user.id
 
         const xpLevel = await leveling.getProfile(guildId, userId)
 
@@ -64,17 +64,17 @@ module.exports = {
             nextRoleText = nextRole.name
         }
         else {
-            nextRoleText = `${message.guild.member(member).displayName} has reached the highest level!`
+            nextRoleText = `${member.displayName} has reached the highest level!`
         }
 
-        const appos = message.member.displayName.charAt(message.member.displayName.length - 1) === 's' ? "'" : "'s"
+        const appos = member.displayName.charAt(member.displayName.length - 1) === 's' ? "'" : "'s"
 
-        let embed = new Discord.MessageEmbed().setTitle(`${message.member.displayName + appos} Profile`)
+        let embed = new Discord.MessageEmbed().setTitle(`${member.displayName + appos} Profile`)
             .setDescription(`**${currentRoleText}**`)
             .addField('MEE6 Level', xpLevel)
             .addField('Next Role', nextRoleText)
             .setColor(currentRoleId !== 'NULL' ? currentRole.color : 'GREY')
-            .setThumbnail(message.author.displayAvatarURL())
+            .setThumbnail(member.user.displayAvatarURL())
 
         message.channel.send(embed)
     }

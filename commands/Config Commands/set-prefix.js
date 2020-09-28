@@ -8,10 +8,11 @@ const guildConfigSchema = require('../../schema/guild-config')
 module.exports = {
     commands: 'prefix',
     description: 'Sets the prefix for this guild.',
-    category: 'null',
+    category: 'admin',
     minArgs: 1,
     maxArgs: 1,
     expectedArgs: '[new prefix]',
+    permissions: 'ADMINISTRATOR',
     callback: async (message, arguments) => {
         await mongo().then(async mongoose => {
             try {
