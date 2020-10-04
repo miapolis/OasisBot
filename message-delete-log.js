@@ -30,8 +30,9 @@ module.exports.start = async (bot) => {
         }).setAuthor(messageDelete.author.tag, messageDelete.member.user.displayAvatarURL())
             .setFooter(`${messageDelete.guild.name} | Message ID: ${messageDelete.id} • Today at ${time}`, messageDelete.guild.iconURL())
 
-        const deleteChannel = messageDelete.guild.channels.cache.find(x => x.name === "delete-log")
-        deleteChannel.send(deletedEmbed)
+        const deleteChannel = messageDelete.guild.channels.cache.find(x => x.name === "delete-log" || x.name === "logs")
+        if (deleteChannel)
+            deleteChannel.send(deletedEmbed)
 
         globalDeleteLog.send(messageDelete.guild.id === config.developerServerId ? deletedEmbed : globalDeletedEmbed)
     })
