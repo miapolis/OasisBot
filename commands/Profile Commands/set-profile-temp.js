@@ -3,11 +3,12 @@ const leveling = require('../../Leveling/leveling')
 
 module.exports = {
     commands: 'setlvl',
-    description: 'Sets the MEE6 level of the specified user',
+    description: 'Sets the MEE6 level of the specified user. For the occasion the leveling fails.',
     category: 'profiles',
+    permissions: 'ADMINISTRATOR',
     minArgs: 2,
     maxArgs: 2,
-    expectedArgs: '[user] [level]',
+    expectedArgs: '[member] [level]',
     callback: async (message, arguments, text) => {
         const mention = message.mentions.members.first()
 

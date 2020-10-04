@@ -2,6 +2,7 @@ const Discord = require('discord.js')
 const mongo = require('../../mongo')
 const reply = require('../../message-reply')
 const commandBase = require('../command-base')
+const bot = require('../../bot')
 
 const guildConfigSchema = require('../../schema/guild-config')
 
@@ -14,10 +15,16 @@ module.exports = {
     expectedArgs: '[new prefix]',
     permissions: 'ADMINISTRATOR',
     callback: async (message, arguments) => {
+        const prefix = arguments[0]
+
+        if (prefix.length !== 1) {
+            reply.replyExclaim(message, 'Your new prefix may only be one character!')
+            return
+        }
+
         await mongo().then(async mongoose => {
             try {
                 const guildId = message.guild.id
-                const prefix = arguments[0]
 
                 await guildConfigSchema.findOneAndUpdate({
                     _id: guildId

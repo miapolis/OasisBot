@@ -56,7 +56,7 @@ module.exports = (bot, commandOptions) => {
         description = '',
         category = 'commands',
         expectedArgs = '',
-        permissionError = 'You do not have the required permissions to use this command',
+        permissionError = 'You do not have the required permissions to use this command!',
         minArgs = 0,
         maxArgs = null,
         permissions = [],
@@ -79,6 +79,8 @@ module.exports = (bot, commandOptions) => {
 
     //Listen for message
     bot.on('message', message => {
+        if (!message.member) { return } //NO DMs!
+
         const { member, content, guild } = message
 
         if (customCommands.getIgnoredUsers().includes(message.member.user.id)) return
@@ -99,7 +101,7 @@ module.exports = (bot, commandOptions) => {
                     if (customCommands.getCustomCommand(arguments[0].substring(1)).error) {
                         message.channel.send(new Discord.MessageEmbed({
                             title: 'That Command Does Not Exist',
-                            description: "Need help? Type in " + `**${globalPrefix}help**\n` + `Looking for a custom command? Use **${globalPrefix}help commands** or **${globalPrefix}commands**`,
+                            description: "Need help? Type in " + `**${globalPrefix}help**\n` + `Looking for a custom command? Use **${globalPrefix}help commands** or **${globalPrefix}commands**.`,
                             color: 'RED'
                         }))
                         return
@@ -113,7 +115,7 @@ module.exports = (bot, commandOptions) => {
                 //But first check their roles
                 for (const permission of permissions) {
                     if (!member.hasPermission(permission)) {
-                        message.reply(permissionError)
+                        reply.replyExclaim(message, permissionError)
                         return
                     }
                 }

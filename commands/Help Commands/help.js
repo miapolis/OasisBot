@@ -8,8 +8,6 @@ const validCategories = [
     'commands',
     'profiles',
     'polls',
-    'roles',
-    'usage',
     'documentation',
     'info',
     'admin'
@@ -20,7 +18,7 @@ module.exports = {
     category: 'null',
     minArgs: 0,
     maxArgs: 1,
-    callback: (message, arguments, text) => {
+    callback: async (message, arguments, text) => {
 
         const prefix = commandBase.getGuildPrefix(message.guild.id)
 
@@ -38,10 +36,6 @@ module.exports = {
                 'Get help with profiles!' + '\n\n' +
                 `**${prefix}help polls**` + '\n' +
                 'Get help with polls!' + '\n\n' +
-                `**${prefix}help roles**` + '\n' +
-                `Get help with this guild's roles!` + '\n\n' +
-                `**${prefix}help usage**` + '\n' +
-                'Get help with the usage of this bot!' + '\n\n' +
                 `**${prefix}help documentation**` + '\n' +
                 'Get help with the OasisBot documentation!' + '\n\n' +
                 `**${prefix}help info**` + '\n' +
@@ -54,12 +48,8 @@ module.exports = {
                 'Get help with profiles!' + '\n\n' +
                 `**${prefix}help polls**` + '\n' +
                 'Get help with polls!' + '\n\n' +
-                `**${prefix}help roles**` + '\n' +
-                `Get help with this guild's roles!` + '\n\n' +
                 `**${prefix}help admin**` + '\n' +
                 'Get help with admin commands for this bot!' + '\n\n' +
-                `**${prefix}help usage**` + '\n' +
-                'Get help with the usage of this bot!' + '\n\n' +
                 `**${prefix}help documentation**` + '\n' +
                 'Get help with the OasisBot documentation!' + '\n\n' +
                 `**${prefix}help info**` + '\n' +
@@ -98,6 +88,16 @@ module.exports = {
                 if (commandName === subCategory.toLowerCase()) {
                     let fullCommand = commands.find(x => typeof (x.commands) === 'string' ? x.commands === commandName : x.commands.includes(commandName))
 
+                    const permArr = fullCommand.permissions ? (typeof (fullCommand.permissions) === 'string' ? [fullCommand.permissions] : fullCommand.permissions) : []
+
+                    for (const perm of permArr) {
+                        if (!message.member.hasPermission(perm)) {
+                            let permissionDesc = `Whoops! It seems like you can't access **${subCategory.toLowerCase()}**.`
+                            await message.channel.send(new discord.MessageEmbed().setTitle(subCategoryTitle).setDescription(permissionDesc).setColor('AQUA'))
+                            return
+                        }
+                    }
+
                     const mainCommand = typeof fullCommand.commands === 'string' ? fullCommand.commands : fullCommand.commands[0]
                     const args = fullCommand.expectedArgs ? ` ${fullCommand.expectedArgs}` : ''
                     const permissionString = fullCommand.permissions ? (typeof (fullCommand.permissions) === 'string' ? fullCommand.permissions : fullCommand.permissions.join(', ')) : 'None'
@@ -118,6 +118,29 @@ module.exports = {
             message.channel.send(`Do you need help? Use **${prefix}help**`)
             return
         }
+
+        //#region No command section
+
+        if (subCategory.toLowerCase() === 'info') {
+            const codeBlock = "```js\n" + `const Discord = require("discord.js")\nconst bot = new Discord.Client()\n` + "```"
+
+            await message.channel.send(new discord.MessageEmbed({
+                title: 'About',
+                description: "`" + `OasisBot v${config.version}` + "`" + '\n---\nCreated by **Miapolis**\nWith special thanks to **joeyzucchini**\n\nMade for **Oasis of Cubes**\n---\n' + codeBlock
+            }))
+            return
+        }
+
+        if (subCategory.toLowerCase() === 'documentation' || subCategory.toLowerCase() === 'docs') {
+            await message.channel.send(new discord.MessageEmbed({
+                title: 'Syntax Help',
+                description: "`" + `${prefix}command-name` + "`" + ` *(permissions: PERMISSIONS)*` + `\n**Description:** Command description.\n\n` + "`" + '[required parameter] <optional paramater>' + "`",
+                color: 'AQUA'
+            }))
+            return
+        }
+
+        //#endregion
 
         let commandsString = ''
 

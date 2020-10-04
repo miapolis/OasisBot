@@ -12,87 +12,63 @@ module.exports = {
     category: 'null',
     description: 'Sends an pre-made embed command in the given announcement channel',
     permissions: 'ADMINISTRATOR',
-    callback: async (message) => {
+    minArgs: 2,
+    maxArgs: 2,
+    expectedArgs: '[command name] [channel name]',
+    callback: async (message, arguments) => {
         const prefix = commandBase.getGuildPrefix(message.guild.id)
+        const inputCommandName = arguments[0].toLowerCase()
+        const inputChannelName = arguments[1]
 
-        await message.channel.send(new Discord.MessageEmbed({
-            title: 'Enter the Name of the Command',
-            description: `Specify your pre-created embed command's name below.\nDon't have one? Use **${prefix}addcommand** and select embed command**\nDon't know which command? Use **${prefix}commands`,
-            color: embedColor.LIGHT_GREEN
-        }))
+        const foundCommand = await customCommands.getCustomCommand(inputCommandName)
 
-        let command
+        if (!foundCommand) {
+            message.channel.send(new Discord.MessageEmbed({
+                title: 'Command not Found',
+                description: `Hmm... That command doesn't seems to exist. Try finding it in **${prefix}commands**.`,
+                color: embedColor.WARM_RED
+            }))
+            return
+        }
 
-        await message.channel.awaitMessages((x => x.author.id === message.author.id), { max: 1, time: defaultTimeout }).then(async collected => {
-            const result = collected.first().content.toLowerCase()
+        if (foundCommand.customCommandType !== 3) {
+            reply.replyExclaim(message, 'That command is not an embed command. Regular commands can simply be spoken themselves without a need for a bot.')
+            return
+        }
 
-            const foundCommand = await customCommands.getCustomCommand(result)
+        command = foundCommand
 
-            if (!foundCommand) {
-                message.channel.send(new Discord.MessageEmbed({
-                    title: 'Command not Found',
-                    description: `Hmm... That command doesn't seems to exist. Try finding it in **${prefix}commands**.`,
-                    color: embedColor.WARM_RED
-                }))
-                return
-            }
+        const foundChannel = bot.getClient().channels.cache.find(x => x.name === inputChannelName)
 
-            if (foundCommand.customCommandType !== 3) {
-                reply.replyExclaim(message, 'That command is not an embed command. Regular commands can simply be spoken themselves without a need for a bot.')
-                return
-            }
+        if (!foundChannel) {
+            reply.replyExclaim(message, 'Something went wrong. Please try again later.')
+            return
+        }
 
-            command = foundCommand
+        //#region Construct Embed
+
+        const d = command.defaultResponse.embed
+        const color = d.hexColor ? '#' + ((Number)(d.hexColor)).toString(16) : undefined
+
+        let embed = new Discord.MessageEmbed({
+            title: d.title,
+            description: d.description ? d.description : undefined,
+            color: color ? color : undefined,
+            fields: d.fields ? d.fields : undefined
         })
 
-        await message.channel.send(new Discord.MessageEmbed({
-            title: 'Type in the Name of Your Channel',
-            description: "This will be the channel the embed is sent in. Be careful not to mention the channel, but rather just type it's name in.",
-            color: embedColor.STREET_BLUE
-        })
-            .addField('Cancel', `${prefix}cancel`)
-        )
+        if (d.thumbnailURL) {
+            embed.setThumbnail(d.thumbnailURL)
+        }
 
-        await message.channel.awaitMessages((x => x.author.id === message.author.id), { max: 1, time: defaultTimeout }).then(async collected => {
-            const result = collected.first().content.toLowerCase()
+        if (d.footer.text) {
+            embed.setFooter(d.footer.text, d.footer.iconURL)
+        }
 
-            if (result === `${prefix}cancel`) {
-                reply.replyExclaim(message, 'Canceled!')
-                return
-            }
+        //#endregion
 
-            const foundChannel = bot.getClient().channels.cache.find(x => x.name === result)
+        await foundChannel.send(embed)
 
-            if (!foundChannel) {
-                reply.replyExclaim(message, 'Something went wrong. Please try again later.')
-                return
-            }
-
-            //#region Construct Embed
-
-            const d = command.defaultResponse.embed
-            const color = d.hexColor ? '#' + ((Number)(d.hexColor)).toString(16) : undefined
-
-            let embed = new Discord.MessageEmbed({
-                title: d.title,
-                description: d.description ? d.description : undefined,
-                color: color ? color : undefined,
-                fields: d.fields ? d.fields : undefined
-            })
-
-            if (d.thumbnailURL) {
-                embed.setThumbnail(d.thumbnailURL)
-            }
-
-            if (d.footer.text) {
-                embed.setFooter(d.footer.text, d.footer.iconURL)
-            }
-
-            //#endregion
-
-            await foundChannel.send(embed)
-
-            reply.replyExclaim(message, 'Your embed has been sent!')
-        })
+        reply.replyExclaim(message, 'Your embed has been sent!')
     }
 }

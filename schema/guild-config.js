@@ -15,6 +15,12 @@ const configSchema = mongoose.Schema({
         type: Number,
         required: true,
         default: 5
+    },
+
+    defaultPollChannel: { //ID of the channel
+        type: String,
+        required: true,
+        default: ''
     }
 })
 

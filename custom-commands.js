@@ -2,7 +2,6 @@ const Discord = require('discord.js')
 const mongo = require('./mongo')
 
 const customCommandSchema = require('./schema/custom-command-schema.js')
-const { commands } = require('./commands/Economy Commands/addbal')
 const loadCommands = require('./commands/load-commands')
 const commandBase = require('./commands/command-base')
 
@@ -144,6 +143,7 @@ module.exports.startListener = async (bot) => {
     console.log('ALL COMMANDS', commandNamesArray)
 
     bot.on('message', async message => {
+        if (!message.member) { return } //NO DMs!
         if (ignoredUsers.includes(message.member.user.id)) { return } //Very simple
         if (message.member.user.bot) { return }
 

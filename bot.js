@@ -4,6 +4,7 @@ const Discord = require("discord.js")
 const bot = new Discord.Client()
 
 module.exports.getClient = () => { return bot }
+module.exports.updateAcvitivty = async (prefix) => await bot.user.setActivity(`${prefix}help`)
 
 const mongo = require('./mongo')
 
@@ -11,11 +12,11 @@ const loadCommands = require('./commands/load-commands')
 const leveling = require('./Leveling/leveling')
 const customCommands = require('./custom-commands')
 const commandBase = require('./commands/command-base')
-const suggestions = require('./Polls/suggestions')
 const messageDeleteLog = require('./message-delete-log')
 const messagePin = require('./message-pin')
+const polls = require('./Polls/polling-system')
 
-const IS_HOSTING = true
+const IS_HOSTING = false
 
 bot.on('ready', async () => {
     console.log(`Logged in as this bot: ${bot.user.tag}`)
@@ -29,8 +30,11 @@ bot.on('ready', async () => {
 
     await messagePin.startup(bot) //Misc. like message pinning
 
+    await polls.startup(bot)
+
     messageDeleteLog.start(bot)
-    suggestions(bot)
+
+    this.updateAcvitivty('&')
 })
 
 if (IS_HOSTING) {
@@ -39,3 +43,4 @@ if (IS_HOSTING) {
 else {
     bot.login(localToken)
 }
+

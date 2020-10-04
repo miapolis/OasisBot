@@ -1,7 +1,6 @@
 const Discord = require('discord.js')
 const mongo = require('../mongo')
 const profileSchema = require('../schema/profile-schema')
-const { description } = require('../commands/Economy Commands/addbal')
 
 const profileCache = {} //guildId-userId: xp
 
@@ -101,6 +100,8 @@ module.exports.updateProfile = async (guildId, userId, xp) => {
 
 module.exports.startLeveling = async (bot) => {
     bot.on('message', async message => {
+        if (!message.member) { return } //Sent in dms
+
         if (message.member.displayName.startsWith('MEE6')) { //It's MEE6 
             if (message.content.includes('Wow you are now level') && message.mentions.members.first()) { //Message contains certian string and mentions user
                 const target = message.mentions.members.first()

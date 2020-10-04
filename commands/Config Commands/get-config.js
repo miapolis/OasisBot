@@ -30,6 +30,7 @@ module.exports = {
                     description: `Change these properties by using **${prefix}[property name]**.`,
                     color: embedColor.STREET_BLUE
                 }).addField('prefix', prefix, true).addField('pin-amount', config.requiredPinAmount ? config.requiredPinAmount : 5, true)
+                    .addField('default-poll-channel', config.defaultPollChannel ? `<#${config.defaultPollChannel}>` : 'Not set up yet!')
 
                 message.channel.send(configEmbed)
             } finally {
