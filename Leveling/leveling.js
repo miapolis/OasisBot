@@ -102,7 +102,7 @@ module.exports.startLeveling = async (bot) => {
     bot.on('message', async message => {
         if (!message.member) { return } //Sent in dms
 
-        if (message.member.displayName.startsWith('MEE6')) { //It's MEE6 
+        if (message.member.user.id === '159985870458322944') { //It's MEE6 
             if (message.content.includes('Wow you are now level') && message.mentions.members.first()) { //Message contains certian string and mentions user
                 const target = message.mentions.members.first()
 

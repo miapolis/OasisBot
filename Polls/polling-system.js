@@ -4,7 +4,7 @@ const pollDatabase = require('./poll-database')
 const pollSchema = require('../schema/poll-schema')
 const mongo = require('../mongo')
 
-const interval = 5000 //Change to 3600000
+const interval = 3600000 //Change to 3600000
 
 const runningPolls = {}
 //'pollId' : {pollMessage, originalContent, endTime(unix timestamp)}
@@ -64,7 +64,7 @@ module.exports.addPoll = async (message, channel, reactions, originalContent, du
 processUpdates = async () => {
     const date = new Date;
     const now = Math.round(date.getTime() / 1000)
-    console.log('NOW', now)
+    console.log('Polling cycle', now)
 
     let deletetionIndexes = []
 
