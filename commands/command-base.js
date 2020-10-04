@@ -150,7 +150,7 @@ module.exports.loadPrefixes = async (bot) => {
                 const guildId = guild[1].id
 
                 const result = await guildConfigSchema.findOne({ _id: guildId })
-                guildPrefixes[guildId] = result.prefix
+                guildPrefixes[guildId] = result.prefix || '&'
             }
         } finally {
             mongoose.connection.close()
