@@ -48,6 +48,7 @@ module.exports = {
                 'Get help with profiles!' + '\n\n' +
                 `**${prefix}help polls**` + '\n' +
                 'Get help with polls!' + '\n\n' +
+
                 `**${prefix}help admin**` + '\n' +
                 'Get help with admin commands for this bot!' + '\n\n' +
                 `**${prefix}help documentation**` + '\n' +
@@ -59,7 +60,7 @@ module.exports = {
                 .setTitle('Help')
                 .setColor('AQUA')
                 .setDescription(
-                    message.member.permissions.has('ADMINISTRATOR') ? adminDesc : desc
+                    message.member.user.id !== config.botOwner ? (message.member.permissions.has('ADMINISTRATOR') ? adminDesc : desc) : adminDesc
                 );
 
             message.channel.send(mainHelpEmbed);
@@ -91,10 +92,12 @@ module.exports = {
                     const permArr = fullCommand.permissions ? (typeof (fullCommand.permissions) === 'string' ? [fullCommand.permissions] : fullCommand.permissions) : []
 
                     for (const perm of permArr) {
-                        if (!message.member.hasPermission(perm)) {
-                            let permissionDesc = `Whoops! It seems like you can't access **${subCategory.toLowerCase()}**.`
-                            await message.channel.send(new discord.MessageEmbed().setTitle(subCategoryTitle).setDescription(permissionDesc).setColor('AQUA'))
-                            return
+                        if (message.author.id !== config.botOwner) {
+                            if (!message.member.hasPermission(perm)) {
+                                let permissionDesc = `Whoops! It seems like you can't access **${subCategory.toLowerCase()}**.`
+                                await message.channel.send(new discord.MessageEmbed().setTitle(subCategoryTitle).setDescription(permissionDesc).setColor('AQUA'))
+                                return
+                            }
                         }
                     }
 
@@ -162,7 +165,7 @@ module.exports = {
                         }
                     }
 
-                    if (!hasPermission) {
+                    if (!hasPermission && message.author.id !== config.botOwner) {
                         continue
                     }
                 }

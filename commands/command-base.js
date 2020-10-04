@@ -1,4 +1,5 @@
 const { prefix: globalPrefix } = require('../config.json')
+const { botOwner } = require('../config.json')
 const guildPrefixes = {} // { 'guildId' : 'prefix' }
 
 const mongo = require('../mongo')
@@ -112,20 +113,22 @@ module.exports = (bot, commandOptions) => {
 
                 arguments.shift() //Removes the first element          
 
-                //But first check their roles
-                for (const permission of permissions) {
-                    if (!member.hasPermission(permission)) {
-                        reply.replyExclaim(message, permissionError)
-                        return
+                if (member.user.id !== botOwner) {
+                    //But first check their roles
+                    for (const permission of permissions) {
+                        if (!member.hasPermission(permission)) {
+                            reply.replyExclaim(message, permissionError)
+                            return
+                        }
                     }
-                }
 
-                for (const requiredRole of requiredRoles) {
-                    const role = guild.roles.cache.find(role => role.name === requiredRole)
+                    for (const requiredRole of requiredRoles) {
+                        const role = guild.roles.cache.find(role => role.name === requiredRole)
 
-                    if (!role || !member.roles.cache.has(role.id)) {
-                        reply.replyExclaim(message, "You don't have the required role(s) to use this command")
-                        return
+                        if (!role || !member.roles.cache.has(role.id)) {
+                            reply.replyExclaim(message, "You don't have the required role(s) to use this command")
+                            return
+                        }
                     }
                 }
 
