@@ -17,7 +17,7 @@ module.exports.startup = async (bot) => {
                 const guildId = guild[1].id
 
                 const result = await guildConfigSchema.findOne({ _id: guildId })
-                pinAmountCache[guildId] = result.requiredPinAmount
+                pinAmountCache[guildId] = result ? result.requiredPinAmount : 5
             }
         } finally {
             mongoose.connection.close()
