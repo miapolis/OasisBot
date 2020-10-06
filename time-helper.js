@@ -1,9 +1,8 @@
+const EST = 3600000 * -5
+
 module.exports.getFormattedMilitaryTime = () => {
-    const today = new Date()
+    const today = new Date(new Date() + EST)
     const hours = today.getHours()
-    console.log('HOURS', hours)
-    console.log('HOURS + 6', hours + 6)
-    console.log('HOURS - 6', hours - 6)
     const minutes = today.getMinutes().toString()
     const seconds = today.getSeconds().toString()
     const time = `${hours}:${minutes.length === 1 ? '0' + minutes : minutes} - ${seconds.length === 1 ? '0' + seconds : seconds}s`
@@ -11,11 +10,8 @@ module.exports.getFormattedMilitaryTime = () => {
 }
 
 module.exports.getFormattedMilitaryTimeMill = () => {
-    const today = new Date()
+    const today = new Date(new Date() + EST)
     const hours = today.getHours()
-    console.log('HOURS', hours)
-    console.log('HOURS + 6', hours + 6)
-    console.log('HOURS - 6', hours - 6)
     const minutes = today.getMinutes().toString()
     const seconds = today.getSeconds().toString()
     let milliseconds = today.getMilliseconds().toString()
