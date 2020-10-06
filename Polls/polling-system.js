@@ -19,7 +19,11 @@ module.exports.startup = async (bot) => {
             const allPolls = await pollSchema.find()
 
             for (const poll of allPolls) {
-                const pollMessage = await bot.channels.cache.get(poll.channelId).messages.fetch(poll._id)
+                const pollChannel = await bot.channels.cache.get(poll.channelId)
+
+                if (!pollChannel) { return }
+
+                const pollMessage = await pollChannel.messages.fetch(poll._id)
 
                 runningPolls[poll._id] = {
                     pollMessage,

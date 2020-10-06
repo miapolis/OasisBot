@@ -19,8 +19,9 @@ module.exports = {
         for (const poll in allPolls) {
             const act = allPolls[poll] //The loop just gives us the index so we have to do this
             const pMessage = act.pollMessage
+            const sliced = act.originalContent.slice(0, 30).trim()
 
-            const abrDesc = act.originalContent.slice(0, 30).trim() + "..."
+            const abrDesc = sliced + (sliced.length !== act.originalContent.trim() ? "..." : '')
 
             descString += `[${poll}](https://discordapp.com/channels/${pMessage.guild.id}/${pMessage.channel.id}/${poll})\n${abrDesc}\n\n`
         }
