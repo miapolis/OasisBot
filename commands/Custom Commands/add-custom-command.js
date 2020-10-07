@@ -467,7 +467,9 @@ initiateEmbedEditor = async (commandName, nonEmbedMessage, message, channel, use
                     }).setFooter('THIS is a footer.', message.author.displayAvatarURL()))
                     break
                 case '🛑':
-                    break
+                    reply.replyExclaim(message, 'Canceled!')
+                    customCommands.removeUserToIgnore(message.author.id, 'CANCELED ADD_CUSTOM_COMMAND SEQ.')
+                    return
                 case '✅':
                     const submitEmbed = new Discord.MessageEmbed({
                         title: title.v,
