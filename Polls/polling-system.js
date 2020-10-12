@@ -15,6 +15,7 @@ const runningIncognitoPolls = {}
 const embedColor = require('../embed-color.json')
 const reply = require('../message-reply')
 const commandBase = require('../commands/command-base')
+const timerHelper = require('../time-helper')
 const { collection } = require('../schema/poll-schema')
 
 module.exports.startup = async (bot) => {
@@ -393,7 +394,7 @@ module.exports.getEndTimestamp = (durationString, getMill = false) => { // Takes
 
     const value = Number(valueString)
 
-    const date = new Date
+    const date = timerHelper.getGoodDate()
     const now = Math.round(date.getTime() / 1000)
 
     if (!getMill) {
@@ -430,7 +431,7 @@ module.exports.getEndTimestamp = (durationString, getMill = false) => { // Takes
 module.exports.getAllInCache = () => { return [runningPolls, runningIncognitoPolls] }
 
 module.exports.calculateDateByUnixTimestamp = (unixTimestamp) => {
-    let date = new Date(unixTimestamp * 1000)
+    let date = timerHelper.getGoodDateWithParams(unixTimestamp * 1000)
 
     const month = date.getMonth()
     const day = date.getDate()

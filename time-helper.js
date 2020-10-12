@@ -23,3 +23,11 @@ module.exports.getFormattedMilitaryTimeMill = () => {
     const time = `${hours}:${minutes.length === 1 ? '0' + minutes : minutes} - ${seconds.length === 1 ? '0' + seconds : seconds}.${milliseconds}s`
     return time
 }
+
+module.exports.getGoodDate = () => {
+    return moment.utc(new Date().toISOString()).tz("America/New_York").subtract(4, 'hours').toDate()
+}
+
+module.exports.getGoodDateWithParams = (ms) => {
+    return moment.utc(new Date(ms).toISOString()).tz("America/New_York").subtract(4, 'hours').toDate()
+}
