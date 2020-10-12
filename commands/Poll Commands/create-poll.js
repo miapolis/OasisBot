@@ -34,6 +34,27 @@ module.exports = {
         const prefix = commandBase.getGuildPrefix(guildId)
         const filter = x => x.author.id === message.author.id
         const channel = message.channel
+        let isIncognito = false
+
+        const selectTypeEmbed = await channel.send(new Discord.MessageEmbed({
+            title: 'Choose Type of Poll',
+            description: 'Select the type of poll you would like to create.',
+            color: embedColor.STREET_BLUE
+        })
+            .addField(':regional_indicator_a: - Regular Poll', 'Regular poll where all reactions are visible.')
+            .addField(':regional_indicator_b: - Incognito Poll', 'Responses are private and anonymous. Members react via DMs with the bot.')
+        )
+
+        await selectTypeEmbed.react('🇦')
+        await selectTypeEmbed.react('🇧')
+
+        await selectTypeEmbed.awaitReactions((x => x.emoji.name === '🇦' || x.emoji.name === '🇧'), { max: 1, time: defaultTimeout }).then(async collected => {
+            const reaction = collected.first()
+
+            if (reaction.emoji.name === '🇧') {
+                isIncognito = true
+            }
+        })
 
         defChannelId = config ? config.defaultPollChannel : ''
 
@@ -90,6 +111,7 @@ module.exports = {
 
         let pollContent, duration = ''
         let emojis = []
+        let enterEmoji = ''
 
         await channel.send(new Discord.MessageEmbed({
             title: 'Poll Content',
@@ -109,6 +131,24 @@ module.exports = {
 
             pollContent = content
         })
+
+        if (isIncognito) {
+            const enterEmojiEmbed = await channel.send(new Discord.MessageEmbed({
+                title: 'Configure Your Enter Emoji',
+                description: 'This will be the emoji members need to react with to enter the poll',
+                color: embedColor.CORNFLOWER_BLUE
+            })
+                .addField('Cancel', `${prefix}cancel`)
+            )
+
+            await channel.awaitMessages(filter, { max: 1, time: defaultTimeout }).then(async collected => {
+                const content = collected.first().content
+
+                if (content.toLowerCase() === `${prefix}cancel`) { reply.replyExclaim(message, 'Canceled!'); customCommands.removeUserToIgnore(message.author.id, 'CANCELED CREATE_POLL SEQ.'); return }
+
+                enterEmoji = content
+            })
+        }
 
         await channel.send(new Discord.MessageEmbed({
             title: 'Configure Your Reactions',
@@ -148,7 +188,13 @@ module.exports = {
         })
 
         const defChannel = bot.getClient().channels.cache.get(defChannelId)
-        pollSystem.addPoll(message, defChannel, emojis, pollContent, duration)
+
+        if (!isIncognito) {
+            pollSystem.addPoll(message, defChannel, emojis, pollContent, duration)
+        }
+        else {
+            pollSystem.addIncognitoPoll(message, defChannel, emojis, enterEmoji, pollContent, duration)
+        }
 
         customCommands.removeUserToIgnore(message.author.id, 'SUCCESS CREATE_POLL SEQ.')
     }

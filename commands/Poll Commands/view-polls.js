@@ -16,14 +16,22 @@ module.exports = {
 
         let descString = ''
 
-        for (const poll in allPolls) {
-            const act = allPolls[poll] //The loop just gives us the index so we have to do this
+        for (const poll in allPolls[0]) {
+            const act = allPolls[0][poll] //The loop just gives us the index so we have to do this
             const pMessage = act.pollMessage
-            const sliced = act.originalContent.slice(0, 30).trim()
 
-            const abrDesc = sliced + (sliced.length !== act.originalContent.trim() ? "..." : '')
+            const abrDesc = (act.originalContent.length > 30) ? act.originalContent.substr(0, 30) + '...' : act.originalContent
 
             descString += `[${poll}](https://discordapp.com/channels/${pMessage.guild.id}/${pMessage.channel.id}/${poll})\n${abrDesc}\n\n`
+        }
+
+        for (const poll in allPolls[1]) {
+            const act = allPolls[1][poll] //The loop just gives us the index so we have to do this
+            const pMessage = act.pollMessage
+
+            const abrDesc = (act.originalContent.length > 30) ? act.originalContent.substr(0, 30) + '...' : act.originalContent
+
+            descString += `[${poll}](https://discordapp.com/channels/${pMessage.guild.id}/${pMessage.channel.id}/${poll}) ❔\n${abrDesc}\n\n`
         }
 
         message.channel.send(new Discord.MessageEmbed({

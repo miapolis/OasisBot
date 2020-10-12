@@ -1,5 +1,5 @@
 module.exports.getFormattedMilitaryTime = () => {
-    const today = new Date()
+    const today = new Date().toLocaleString("en-US", { timeZone: "America/New_York" })
     const hours = today.getHours()
     const minutes = today.getMinutes().toString()
     const seconds = today.getSeconds().toString()
@@ -8,7 +8,7 @@ module.exports.getFormattedMilitaryTime = () => {
 }
 
 module.exports.getFormattedMilitaryTimeMill = () => {
-    const today = new Date()
+    const today = new Date().toLocaleString("en-US", { timeZone: "America/New_York" })
     const hours = today.getHours()
     const minutes = today.getMinutes().toString()
     const seconds = today.getSeconds().toString()

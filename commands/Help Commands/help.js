@@ -4,6 +4,8 @@ const loadCommands = require('../load-commands')
 const config = require('../../config.json')
 const commandBase = require('../command-base')
 
+const prefixPlaceholder = '[%%]'
+
 const validCategories = [
     'commands',
     'profiles',
@@ -104,7 +106,7 @@ module.exports = {
                     const mainCommand = typeof fullCommand.commands === 'string' ? fullCommand.commands : fullCommand.commands[0]
                     const args = fullCommand.expectedArgs ? ` ${fullCommand.expectedArgs}` : ''
                     const permissionString = fullCommand.permissions ? (typeof (fullCommand.permissions) === 'string' ? fullCommand.permissions : fullCommand.permissions.join(', ')) : 'None'
-                    const { description } = fullCommand
+                    let description = fullCommand.description.replace(prefixPlaceholder, prefix)
 
                     let commandsString = ("`" + `${prefix}${mainCommand}` + args + "`" + ` *(permissions: ${permissionString})*` + `\n**Description:** ${description}` + "\n\n")
 
@@ -173,7 +175,7 @@ module.exports = {
                 const mainCommand = typeof command.commands === 'string' ? command.commands : command.commands[0]
                 const args = command.expectedArgs ? ` ${command.expectedArgs}` : ''
                 const permissionString = permissions ? permissions.join(', ') : 'None'
-                const { description } = command
+                let description = command.description.replace(prefixPlaceholder, prefix)
 
                 commandsString += ("`" + `${prefix}${mainCommand}` + args + "`" + ` *(permissions: ${permissionString})*` + `\n**Description:** ${description}` + "\n\n")
             }
