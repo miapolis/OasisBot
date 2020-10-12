@@ -1,5 +1,10 @@
+const moment = require('moment')
+
 module.exports.getFormattedMilitaryTime = () => {
-    const today = new Date().toLocaleString("en-US", { timeZone: "America/New_York" })
+    var today = ((moment(Date.now()).utcOffset('-0500').format('x')))
+    //Parse it into native JS object: 
+    today = new Date(parseInt(now))
+
     const hours = today.getHours()
     const minutes = today.getMinutes().toString()
     const seconds = today.getSeconds().toString()
@@ -8,7 +13,10 @@ module.exports.getFormattedMilitaryTime = () => {
 }
 
 module.exports.getFormattedMilitaryTimeMill = () => {
-    const today = new Date().toLocaleString("en-US", { timeZone: "America/New_York" })
+    var today = ((moment(Date.now()).utcOffset('-0500').format('x')))
+    //Parse it into native JS object: 
+    today = new Date(parseInt(now));
+
     const hours = today.getHours()
     const minutes = today.getMinutes().toString()
     const seconds = today.getSeconds().toString()
