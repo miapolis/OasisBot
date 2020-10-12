@@ -1,7 +1,7 @@
 const moment = require('moment-timezone')
 
 module.exports.getFormattedMilitaryTime = () => {
-    var today = moment.utc(new Date().toISOString()).tz("America/New_York").toDate()
+    var today = moment.utc(new Date().toISOString()).tz("America/New_York").subtract(4, 'hours').toDate()
 
     const hours = today.getHours()
     const minutes = today.getMinutes().toString()
@@ -11,7 +11,7 @@ module.exports.getFormattedMilitaryTime = () => {
 }
 
 module.exports.getFormattedMilitaryTimeMill = () => {
-    var today = moment.utc(new Date().toISOString()).tz("America/New_York").toDate()
+    var today = moment.utc(new Date().toISOString()).tz("America/New_York").subtract(4, 'hours').toDate()
 
     const hours = today.getHours()
     const minutes = today.getMinutes().toString()
