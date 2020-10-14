@@ -4,7 +4,7 @@ const Discord = require("discord.js")
 const bot = new Discord.Client()
 
 module.exports.getClient = () => { return bot }
-module.exports.updateAcvitivty = async (prefix) => await bot.user.setActivity(`${prefix}help`)
+module.exports.updateAcvitivty = async () => await bot.user.setActivity(`oasisbot.xyz`)
 
 const mongo = require('./mongo')
 
@@ -34,7 +34,7 @@ bot.on('ready', async () => {
 
     messageDeleteLog.start(bot)
 
-    this.updateAcvitivty('&')
+    this.updateAcvitivty()
 })
 
 if (IS_HOSTING) {
