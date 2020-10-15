@@ -43,7 +43,7 @@ module.exports = {
     }
 }
 
-formatBytes = (bytes, decimals = 2) => { //StackOverflow + Copy Paste = :) 
+module.exports.formatBytes = (bytes, decimals = 2) => { //StackOverflow + Copy Paste = :) 
     if (bytes === 0) return '0 Bytes';
 
     const k = 1024;
