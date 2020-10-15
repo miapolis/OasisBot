@@ -6,6 +6,7 @@ const reply = require('../../message-reply')
 const embedColor = require('../../embed-color.json')
 const commandBase = require('../command-base')
 const timeHelper = require('../../time-helper')
+const { connect } = require('mongoose')
 
 //#region Emoji Defenitions
 
@@ -221,8 +222,12 @@ continueWithBasicCommand = async (commandName, message, channel, user) => {
                 embed: null
             }
 
-            await submitCustomCommand(commandName, discordMessageObj, 1, [], 1, channel, user)
-            return
+            await setupChannels(message, channel, submit)
+
+            async function submit(ids) {
+                await submitCustomCommand(commandName, discordMessageObj, 1, [], 1, channel, user, ids)
+                return
+            }
         }
         else {
             reply.replyTimeout(message, 'Your time has expired!', user)
@@ -307,7 +312,12 @@ initiateResponseLoop = async (commandName, message, channel, user, amountOfRespo
     }
 
     console.log(responses)
-    await submitCustomCommand(commandName, '', amountOfResponses, responses, 2, channel, message.author) //(commandName, defaultResponse, amountOfResponses, responses, customCommandType, channel, humanUser)
+
+    await setupChannels(message, channel, submit)
+
+    async function submit(ids) {
+        await submitCustomCommand(commandName, '', amountOfResponses, responses, 2, channel, message.author, ids) //(commandName, defaultResponse, amountOfResponses, responses, customCommandType, channel, humanUser)
+    }
 }
 
 //#endregion
@@ -480,8 +490,12 @@ initiateEmbedEditor = async (commandName, nonEmbedMessage, message, channel, use
 
                     submitEmbed.thumbnail
 
-                    submitCustomCommand(commandName, { message: nonEmbedMessage, embed: submitEmbed }, 1, [], 3, channel, user) //async (commandName, defaultResponse, amountOfResponses, responses, customCommandType, channel, user) => {
-                    reactionCollector.stop()
+                    await setupChannels(message, channel, submit)
+
+                    async function submit(ids) {
+                        submitCustomCommand(commandName, { message: nonEmbedMessage, embed: submitEmbed }, 1, [], 3, channel, user, ids) //async (commandName, defaultResponse, amountOfResponses, responses, customCommandType, channel, user) => {
+                        reactionCollector.stop()
+                    }
 
                     break
             }
@@ -673,14 +687,84 @@ previewEmbed = (channel, rawText, title, description, thumbnail, fields, embedHe
 
 //#endregion
 
-submitCustomCommand = async (commandName, defaultResponse, amountOfResponses, responses, customCommandType, channel, humanUser) => {
+setupChannels = async (originalInitiateMessage, channel, callback) => { //returns [[invalidChannelIds], [validChannelIds]]
+    const prefix = commandBase.getGuildPrefix(channel.guild.id)
+    let invalidMode = true
+
+    const restrictionEmojiEmbed = await channel.send(new Discord.MessageEmbed({
+        title: 'Configure Your Restricted Channels',
+        description: 'This will prevent your command from being used in certain channels.',
+        color: embedColor.LIGHT_GREEN
+    })
+        .addField(`${creationEmojis[0]} - Invalid Channels`, 'Your command will be restricted in these channels')
+        .addField(`${creationEmojis[1]} - Valid Channels`, 'Your command will only be valid in these channels')
+    )
+
+    await restrictionEmojiEmbed.react(creationEmojis[3])
+    await restrictionEmojiEmbed.react(creationEmojis[4])
+
+    const filter = (reaction, user) => {
+        return user.id === originalInitiateMessage.author.id
+    }
+
+    await restrictionEmojiEmbed.awaitReactions(filter, { max: 1, time: defaultTimeout }).then(async collected => {
+        const reaction = collected.first()
+        if (reaction.emoji.name === '🇧') {
+            invalidMode = false
+        }
+        else {
+            invalidMode = true
+        }
+    })
+
+    await channel.send(new Discord.MessageEmbed({
+        title: `Configure Your ${(invalidMode ? 'Invalid' : 'Valid')} Channels`,
+        description: 'Mention each of your channels with spaces seperating them.',
+        color: embedColor.STREET_BLUE
+    })
+        .addField('Skip this step', `${prefix}skip`)
+        .addField('Cancel', `${prefix}cancel`)
+    )
+
+    await channel.awaitMessages(x => x.author.id === originalInitiateMessage.author.id, { max: 1, time: defaultTimeout }).then(async collected => {
+        const content = collected.first().content
+
+        if (content === `${prefix}cancel`) {
+            reply.replyExclaim(originalInitiateMessage, 'Canceled!')
+            customCommands.removeUserToIgnore(originalInitiateMessage.author.id, 'CANCELED ADDCOMMAND SEQ.')
+            return undefined
+        }
+        if (content === `${prefix}skip`) {
+            return [[], []]
+        }
+
+        let ids = []
+        const channelMentionArr = content.split(' ') //<#ID>
+
+        for (const mention of channelMentionArr) {
+            const indexOfHash = mention.lastIndexOf('#') + 1
+            ids.push(mention.slice(indexOfHash, mention.length - 1))
+        }
+
+        console.log(ids)
+
+        if (invalidMode) {
+            callback([ids, []])
+        }
+        else {
+            callback([[], ids])
+        }
+    })
+}
+
+submitCustomCommand = async (commandName, defaultResponse, amountOfResponses, responses, customCommandType, channel, humanUser, channelIds) => {
     channel.send(new Discord.MessageEmbed({
         title: 'Loading...',
         description: 'Hang on.',
         color: embedColor.CORNFLOWER_BLUE
     }).setFooter('Oasis Database · Creating Command', botScript.getClient().user.displayAvatarURL()))
 
-    await customCommands.addCustomCommand(commandName, defaultResponse, amountOfResponses, responses, customCommandType)
+    await customCommands.addCustomCommand(commandName, defaultResponse, amountOfResponses, responses, customCommandType, channelIds)
 
     setTimeout(() => {
         channel.send(new Discord.MessageEmbed({

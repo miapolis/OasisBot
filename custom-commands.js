@@ -4,6 +4,7 @@ const mongo = require('./mongo')
 const customCommandSchema = require('./schema/custom-command-schema.js')
 const loadCommands = require('./commands/load-commands')
 const commandBase = require('./commands/command-base')
+const reply = require('./message-reply')
 
 const commandsCache = {} //"name": obj
 
@@ -47,7 +48,7 @@ module.exports.getCustomCommand = async (name) => {
     })
 }
 
-module.exports.addCustomCommand = async (name, defaultResponse, amountOfResponses, responses, customCommandType) => { //Add message with embed object
+module.exports.addCustomCommand = async (name, defaultResponse, amountOfResponses, responses, customCommandType, channelIds) => { //Add message with embed object
     name = name.toLowerCase()
 
     const embed = defaultResponse.embed
@@ -72,7 +73,9 @@ module.exports.addCustomCommand = async (name, defaultResponse, amountOfResponse
                 },
                 amountOfResponses,
                 responses,
-                customCommandType
+                customCommandType,
+                invalidChannelIds: channelIds[0],
+                validChannelIds: channelIds[1]
             }).save()
 
             commandsCache[name] = addedDoc
@@ -169,6 +172,19 @@ module.exports.startListener = async (bot) => {
                 }))
 
                 return
+            }
+
+            if (commandObject.invalidChannelIds.length !== 0) { //We have channels that are invalid and the mode is set to invalid channels
+                if (commandObject.invalidChannelIds.includes(message.channel.id)) { //Sent in an invalid channel
+                    reply.replyExclaim(message, 'That command is disabled in this channel.')
+                    return
+                }
+            }
+            else if (commandObject.validChannelIds.length !== 0) { //We only have a limited amount of valid channels and the mode is valid channels
+                if (!(commandObject.validChannelIds.includes(message.channel.id))) {  //The channel we are in isn't a valid one 
+                    reply.replyExclaim(message, 'That command is disabled in this channel.')
+                    return
+                }
             }
 
             if (commandObject.customCommandType === 1) { //Only one response in the command

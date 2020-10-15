@@ -52,7 +52,9 @@ const customCommandSchema = mongoose.Schema({
     customCommandType: { //1: Default, 2: Random, 3: Embed, 4: Random Embed
         type: Number,
         required: true
-    }
+    },
+    invalidChannelIds: [],
+    validChannelIds: []
 })
 
 module.exports = mongoose.model('customCommand', customCommandSchema)
