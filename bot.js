@@ -6,7 +6,7 @@ const{ Constants }= require('discord.js')
 Constants.DefaultOptions.ws.properties.$browser = `Discord iOS`
 
 module.exports.getClient = () => { return bot }
-module.exports.updateAcvitivty = async () => await bot.user.setActivity(`oasisbot.xyz`, {type: 3, browser: 'DISCORD IOS'})
+module.exports.updateAcvitivty = async () => await bot.user.setActivity(`oasisbot.xyz`, {type: 1, browser: 'DISCORD IOS'})
 
 const mongo = require('./mongo')
 
