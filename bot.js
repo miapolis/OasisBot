@@ -18,7 +18,7 @@ const messageDeleteLog = require('./message-delete-log')
 const messagePin = require('./message-pin')
 const polls = require('./Polls/polling-system')
 
-const IS_HOSTING = true
+const IS_HOSTING = false
 
 bot.on('ready', async () => {
     console.log(`Logged in as this bot: ${bot.user.tag}`)
