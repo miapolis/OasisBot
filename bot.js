@@ -2,11 +2,13 @@ const { localToken } = require('./config.json')
 
 const Discord = require("discord.js")
 const bot = new Discord.Client()
-const{ Constants }= require('discord.js')
-Constants.DefaultOptions.ws.properties.$browser = `Discord iOS`
 
 module.exports.getClient = () => { return bot }
+<<<<<<< HEAD
 module.exports.updateAcvitivty = async () => await bot.user.setActivity(`oasisbot.xyz`, {type: 1, browser: 'DISCORD IOS'})
+=======
+module.exports.updateAcvitivty = async () => await bot.user.setActivity(`oasisbot.xyz`)
+>>>>>>> parent of 64e99ff... LETS GO
 
 const mongo = require('./mongo')
 
