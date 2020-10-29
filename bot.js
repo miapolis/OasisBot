@@ -24,6 +24,8 @@ bot.on('ready', async () => {
 
     loadCommands(bot) //First load all of the commands in
 
+    mongo.configure(IS_HOSTING) //Configure our database tokens
+
     await commandBase.loadPrefixes(bot) //Then load the prefixes
     await customCommands.startup(bot) //Then load in the custom commands
 
