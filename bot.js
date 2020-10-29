@@ -1,5 +1,3 @@
-const { localToken } = require('./secret-tokens.json')
-
 const Discord = require("discord.js")
 const bot = new Discord.Client()
 
@@ -44,6 +42,6 @@ if (IS_HOSTING) {
     bot.login(process.env.token)
 }
 else {
-    bot.login(localToken)
+    bot.login(require('./secret-tokens.json').localToken)
 }
 

@@ -1,5 +1,4 @@
 const mongoose = require('mongoose')
-const secretTokens = require('./secret-tokens.json')
 let mongoPath = ''
 
 module.exports = async () => {
@@ -12,5 +11,5 @@ module.exports = async () => {
 
 module.exports.configure = (isHosting) => {
     if (isHosting) { mongoPath = process.env.mongopath }
-    else { mongoPath = secretTokens.mongoPath }
+    else { mongoPath = require('./secret-tokens.json').mongoPath }
 } 
