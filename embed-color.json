@@ -5,5 +5,6 @@
     "SUCCESS_GREEN": "#21d12a",
     "WARM_RED": "#de2323",
     "FRIENDLY_RED": "#de3e3e",
-    "COOL_AQUA": "#38c4e0"
+    "COOL_AQUA": "#38c4e0",
+    "GOLD": "GOLD"
 }

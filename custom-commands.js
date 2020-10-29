@@ -48,7 +48,7 @@ module.exports.getCustomCommand = async (name) => {
     })
 }
 
-module.exports.addCustomCommand = async (name, defaultResponse, amountOfResponses, responses, customCommandType, channelIds) => { //Add message with embed object
+module.exports.addCustomCommand = async (name, defaultResponse, aor, responses, customCommandType, channelIds) => { //Add message with embed object
     name = name.toLowerCase()
 
     const embed = defaultResponse.embed
@@ -71,7 +71,7 @@ module.exports.addCustomCommand = async (name, defaultResponse, amountOfResponse
                         }
                     } : undefined
                 },
-                amountOfResponses,
+                amountOfResponses: aor,
                 responses,
                 customCommandType,
                 invalidChannelIds: channelIds[0],
@@ -79,6 +79,53 @@ module.exports.addCustomCommand = async (name, defaultResponse, amountOfResponse
             }).save()
 
             commandsCache[name] = addedDoc
+        } finally {
+            mongoose.connection.close()
+        }
+    })
+}
+
+module.exports.editCustomCommand = async (originalName, name, defaultResponse, amountOfResponses, responses, channelIds) => {
+    originalName = originalName.toLowerCase()
+    name = name.toLowerCase()
+
+    const embed = defaultResponse ? defaultResponse.embed : null
+
+    return await mongo().then(async (mongoose) => {
+        try {
+            const newDoc = await customCommandSchema.findOneAndUpdate({
+                commandName: originalName
+            },
+                {
+                    commandName: name,
+                    defaultResponse: {
+                        message: defaultResponse ? defaultResponse.message : '',
+                        embed: embed ? {
+                            title: embed.title,
+                            description: embed.description,
+                            hexColor: embed.color,
+                            thumbnailURL: embed.thumbnail.url,
+                            fields: embed.fields,
+                            footer: {
+                                text: embed.footer ? embed.footer.text : '',
+                                iconURL: embed.footer ? embed.footer.iconURL : ''
+                            }
+                        } : undefined
+                    },
+                    amountOfResponses,
+                    responses,
+                    invalidChannelIds: channelIds ? channelIds[0] : [],
+                    validChannelIds: channelIds ? channelIds[1] : []
+                },
+                {
+                    upsert: true,
+                    useFindAndModify: false,
+                    new: true
+                }
+            )
+
+            delete commandsCache[originalName]
+            commandsCache[name] = newDoc
         } finally {
             mongoose.connection.close()
         }
@@ -174,13 +221,13 @@ module.exports.startListener = async (bot) => {
                 return
             }
 
-            if (commandObject.invalidChannelIds.length !== 0) { //We have channels that are invalid and the mode is set to invalid channels
+            if (commandObject.invalidChannelIds && commandObject.invalidChannelIds.length !== 0) { //We have channels that are invalid and the mode is set to invalid channels
                 if (commandObject.invalidChannelIds.includes(message.channel.id)) { //Sent in an invalid channel
                     reply.replyExclaim(message, 'That command is disabled in this channel.')
                     return
                 }
             }
-            else if (commandObject.validChannelIds.length !== 0) { //We only have a limited amount of valid channels and the mode is valid channels
+            else if (commandObject.validChannelIds && commandObject.validChannelIds.length !== 0) { //We only have a limited amount of valid channels and the mode is valid channels
                 if (!(commandObject.validChannelIds.includes(message.channel.id))) {  //The channel we are in isn't a valid one 
                     reply.replyExclaim(message, 'That command is disabled in this channel.')
                     return

@@ -732,10 +732,12 @@ setupChannels = async (originalInitiateMessage, channel, callback) => { //return
         if (content === `${prefix}cancel`) {
             reply.replyExclaim(originalInitiateMessage, 'Canceled!')
             customCommands.removeUserToIgnore(originalInitiateMessage.author.id, 'CANCELED ADDCOMMAND SEQ.')
-            return undefined
+            callback(undefined)
+            return
         }
         if (content === `${prefix}skip`) {
-            return [[], []]
+            callback([[], []])
+            return
         }
 
         let ids = []
@@ -762,7 +764,7 @@ submitCustomCommand = async (commandName, defaultResponse, amountOfResponses, re
         title: 'Loading...',
         description: 'Hang on.',
         color: embedColor.CORNFLOWER_BLUE
-    }).setFooter('Oasis Database · Creating Command', botScript.getClient().user.displayAvatarURL()))
+    }).setFooter('Oasis Database · Creating command', botScript.getClient().user.displayAvatarURL()))
 
     await customCommands.addCustomCommand(commandName, defaultResponse, amountOfResponses, responses, customCommandType, channelIds)
 

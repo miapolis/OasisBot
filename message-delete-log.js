@@ -9,14 +9,12 @@ module.exports.start = async (bot) => {
     bot.on('messageDelete', async (messageDelete) => {
         if (!messageDelete.member) { return } //NO DMs!
 
-        await Discord.Util.delayFor(900)
-
-        const time = timeHelper.getFormattedMilitaryTimeMill()
-
         if (messageDelete.log === false) {
             console.log('MESSAGE IGNORED', messageDelete.content)
             return
         }
+
+        const time = timeHelper.getFormattedMilitaryTimeMill()
 
         const deletedEmbed = new Discord.MessageEmbed({
             description: `**Message sent by <@${messageDelete.author.id}> deleted in ${messageDelete.channel}**\n` + `${messageDelete.content || "?"}`,

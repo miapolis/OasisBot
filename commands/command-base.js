@@ -126,14 +126,14 @@ module.exports = (bot, commandOptions) => {
                         const role = guild.roles.cache.find(role => role.name === requiredRole)
 
                         if (!role || !member.roles.cache.has(role.id)) {
-                            reply.replyExclaim(message, "You don't have the required role(s) to use this command")
+                            reply.replyExclaim(message, "You don't have the required role(s) to use this command.")
                             return
                         }
                     }
                 }
 
                 if (arguments.length < minArgs || (maxArgs !== null && arguments.length > maxArgs)) {
-                    reply.replyExclaim(message, `Sorry, something went wrong. If you need help with this command, use **${globalPrefix}help ${commands[0]}**`)
+                    reply.replyExclaim(message, `Sorry, something went wrong. If you need help with this command, use **${globalPrefix}help ${commands[0]}**.`)
                     return
                 }
 
