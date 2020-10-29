@@ -1,6 +1,5 @@
 const mongoose = require('mongoose')
-
-const mongoPath = "mongodb+srv://oasisbot:HLHbZf4o5McSjVq3@oasisbot-cluster.4dxds.mongodb.net/<oasis-db>?retryWrites=true&w=majority"
+const { mongoPath } = require('./secret-tokens.json')
 
 module.exports = async () => {
     await mongoose.connect(mongoPath, {

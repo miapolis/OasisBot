@@ -1,4 +1,4 @@
-const { localToken } = require('./config.json')
+const { localToken } = require('./secret-tokens.json')
 
 const Discord = require("discord.js")
 const bot = new Discord.Client()
