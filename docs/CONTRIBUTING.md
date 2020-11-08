@@ -16,6 +16,7 @@
 ## Other Rules
 >- Avoid adding completely new things, as they most likely have to be approved by Joey 
 >- If there is a need to update database schemas, core systems, etc. create an issue and explain why your contribution would require that
+>- Make sure to check out the issue templates provided when creating issues
 >- Have fun? 
 
 ## How to Contribute
