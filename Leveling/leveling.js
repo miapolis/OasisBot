@@ -4,8 +4,6 @@ const profileSchema = require('../schema/profile-schema')
 
 const profileCache = {} //guildId-userId: xp
 
-//#region Role Defenitions
-
 const LFIVE = '575276597947662346'
 const LTEN = '575276683670847497'
 const LFIFTEEN = '575276770232631315'
@@ -22,7 +20,11 @@ const LONEHUNDRED = '579855938899542037'
 const LONEFIFTY = '579855723895193611'
 const LTWOHUNDRED = '579856499157893140'
 
-//#endregion
+const SPEC_LFIFTY = 'Congratulations on now entering the level 50 elite gang!\n' +
+'Clearly, you are a dedicated member in your server and this we highly appreciate.\n' +
+'Thank you for getting this far, but there are still many more levels to come.\n' +
+'Keep up the good work!\n\n' +
+'*Hint hint* Nitro rewards and other prizes for high levels may or may not be coming soon...'
 
 module.exports.getProfile = async (guildId, userId) => {
 
@@ -174,9 +176,20 @@ module.exports.startLeveling = async (bot) => {
 
                     //Sending the embed is the last part
 
+                    let desc = `Wow! **${target.displayName}**, you are now level ${levelNumber} and have received the **${role.name}** role!\nCheck out your profile!`
+
+                    if (levelNumber >= 50) {
+                        desc += '\n\nAnd now, a special letter of appreciation:\n\n'
+
+                        switch (levelNumber) {
+                            case 50:
+                                desc += SPEC_LFIFTY
+                        }
+                    }
+
                     let roleEmbed = new Discord.MessageEmbed({
                         title: "SO \\*BIG!*",
-                        description: `Wow! **${target.displayName}**, you are now level ${levelNumber} and have received the **${role.name}** role!\nCheck out your profile!`,
+                        description: desc,
                         color: role.color
                     })
 
